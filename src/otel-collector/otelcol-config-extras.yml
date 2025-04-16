@@ -16,3 +16,23 @@
 #    pipelines:
 #      traces:
 #        exporters: [spanmetrics, otlphttp/example]
+
+exporters:
+  otlp/coralogix:
+    endpoint: ingress.cx498.coralogix.com:443
+    headers:
+      Authorization: Bearer cxtp_gYMbBViUyNYj0RGQppclpByjVVLSve
+      CX-Application-Name: "otel-demo-app"
+      CX-Subsystem-Name: "otel-collector"
+
+service:
+  pipelines:
+    traces:
+      exporters: [otlp, debug, spanmetrics, otlp/coralogix]
+
+    metrics:
+      exporters: [otlphttp/prometheus, debug, otlp/coralogix]
+
+    logs:
+      exporters: [opensearch, debug, otlp/coralogix]
+

@@ -12,9 +12,28 @@ const {containerDetector} = require('@opentelemetry/resource-detector-container'
 const {gcpDetector} = require('@opentelemetry/resource-detector-gcp');
 const {envDetector, hostDetector, osDetector, processDetector} = require('@opentelemetry/resources');
 
+const traceExporter = new OTLPTraceExporter({
+  url: 'https://ingress.cx498.coralogix.com:443',
+  headers: {
+    'Authorization': 'Bearer cxtp_gYMbBViUyNYj0RGQppclpByjVVLSve',
+    'CX-Application-Name': 'otel-demo-app',
+    'CX-Subsystem-Name': 'otel-collector'
+  }
+});
+
+const metricExporter = new OTLPMetricExporter({
+  url: 'https://ingress.cx498.coralogix.com:443',
+  headers: {
+    'Authorization': 'Bearer cxtp_gYMbBViUyNYj0RGQppclpByjVVLSve',
+    'CX-Application-Name': 'otel-demo-app',
+    'CX-Subsystem-Name': 'otel-collector'
+  }
+});
+
 const sdk = new opentelemetry.NodeSDK({
-  traceExporter: new OTLPTraceExporter(),
-  instrumentations: [
+//  traceExporter: new OTLPTraceExporter(),
+traceExporter: traceExporter,  
+instrumentations: [
     getNodeAutoInstrumentations({
       // disable fs instrumentation to reduce noise
       '@opentelemetry/instrumentation-fs': {
@@ -22,8 +41,9 @@ const sdk = new opentelemetry.NodeSDK({
       },
     })
   ],
-  metricReader: new PeriodicExportingMetricReader({
-    exporter: new OTLPMetricExporter(),
+//  metricReader: new PeriodicExportingMetricReader({
+    metricReader: new PeriodicExportingMetricReader({
+    exporter: new metricExporter(),
   }),
   resourceDetectors: [
     containerDetector,
